@@ -29,16 +29,16 @@ public class TimeSlotService {
                     .build();
         }
 
-        TimeSlot timeSlot = timeSlotMapper.dtoToEntity(timeSlotDTO);
+        TimeSlot timeSlot = timeSlotMapper.toEntity(timeSlotDTO);
         timeSlot.setName(timeSlotName);
         timeSlot = timeSlotRepository.save(timeSlot);
-        timeSlotDTO = timeSlotMapper.entityToDto(timeSlot);
+        timeSlotDTO = timeSlotMapper.toDTO(timeSlot);
 
         return timeSlotDTO;
     }
 
     public TimeSlotDTO getOne(Long id) throws CustomException {
-        return timeSlotMapper.entityToDto(findById(id));
+        return timeSlotMapper.toDTO(findById(id));
     }
 
     public void deleteOne(Long id) throws CustomException {

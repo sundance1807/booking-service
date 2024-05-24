@@ -36,8 +36,6 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
 }
 tasks.withType(JavaCompile) {
 	options.annotationProcessorPath = configurations.annotationProcessor
