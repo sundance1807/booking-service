@@ -79,6 +79,14 @@
                 referencedTableName="rooms"
                 referencedColumnNames="id"
                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_bookings_users"
+                baseTableName="bookings"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
     </changeSet>
 
     <changeSet id="1.0.0-5" author="m.kossatyy">
