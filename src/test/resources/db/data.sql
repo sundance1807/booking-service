@@ -1,7 +1,7 @@
-INSERT INTO users (username, password, first_name, last_name)
-VALUES ('askar', '123', 'Аскар', 'Весельчак'),
-       ('maxim', '123', 'Максим', 'Мудрец'),
-       ('daulet', '123', 'Даулет', 'Силач');
+INSERT INTO users (username, password, first_name, last_name, role, telegram_link, registered_at)
+VALUES ('askar', '123', 'Аскар', 'Весельчак', 'ADMIN', 'https://t.me/askar', '2024-01-06 08:00:00'),
+       ('maxim', '123', 'Максим', 'Мудрец', 'USER', 'https://t.me/maxim', '2024-02-10 09:00:00'),
+       ('daulet', '123', 'Даулет', 'Силач', 'USER', 'https://t.me/daulet', '2024-03-15 10:00:00');
 
 INSERT INTO rooms (name, floor, capacity)
 VALUES ('Meeting Room 02', 2, 10),
