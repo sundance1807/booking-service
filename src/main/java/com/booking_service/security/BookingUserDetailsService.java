@@ -13,23 +13,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class BookingUserDetailsService implements UserDetailsService {
-    private BookingUserRepository bookingUserRepository;
+    private final BookingUserRepository bookingUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         BookingUser bookingUser = bookingUserRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException(username + " not found."));
-
-        return new User(bookingUser.getUsername(), bookingUser.getPassword(), mapRolesToAuthorities(bookingUser.getRoles()));
-    }
-
-    private Collection<GrantedAuthority> mapRolesToAuthorities(Set<Role> roleSet) {
-        return roleSet.stream().map(role -> new SimpleGrantedAuthority(role.toString())).collect(Collectors.toList());
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(bookingUser.getRole().toString()));
+        return new User(bookingUser.getUsername(), bookingUser.getPassword(), authorities);
     }
 }

@@ -26,22 +26,17 @@ public class BookingUser {
     private String firstName;
     @Column(name = "secondName", length = 155)
     private String secondName;
-    @Column(name = "telegramLink", length = 155)
+    @Column(name = "telegramLink", unique = true, length = 155)
     private String telegramLink;
     @Column(name = "registeredAt")
     private LocalDateTime registeredAt;
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "users_2_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private Set<Role> roles = new HashSet<>();
+    @Column(nullable = false)
+    private Role role = Role.USER;
 
     @PrePersist
     public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
-
         if (this.registeredAt == null) {
-            this.registeredAt = now;
+            this.registeredAt = LocalDateTime.now();
         }
     }
 }

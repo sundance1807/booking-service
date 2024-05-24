@@ -11,12 +11,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-import static com.booking_service.config.SecurityConstant.JWT_EXPIRATION;
-import static com.booking_service.config.SecurityConstant.JWT_SECRET;
-
 @Component
 public class JwtGenerator {
 
+    public static final long JWT_EXPIRATION = 60000 * 60;
+    public static final String JWT_SECRET = "1()n2oxn$1309%82j1!@#r0nra9n1243123";
     private static final Logger log = LoggerFactory.getLogger(JwtGenerator.class);
     private final Algorithm algorithm;
 

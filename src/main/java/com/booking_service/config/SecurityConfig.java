@@ -23,6 +23,7 @@ import com.booking_service.security.JwtService;
 @AllArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
+
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
     @Bean

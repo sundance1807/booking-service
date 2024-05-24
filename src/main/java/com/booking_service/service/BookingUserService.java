@@ -1,7 +1,6 @@
 package com.booking_service.service;
 
 import com.booking_service.exception.CustomException;
-import com.booking_service.model.Role;
 import com.booking_service.model.dto.AuthResponseDTO;
 import com.booking_service.model.dto.LoginDTO;
 import com.booking_service.model.dto.RegistrationDTO;
@@ -10,7 +9,6 @@ import com.booking_service.repository.BookingUserRepository;
 import com.booking_service.security.JwtGenerator;
 import com.booking_service.util.MessageSource;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class BookingUserService {
 
     private AuthenticationManager authenticationManager;
@@ -51,7 +46,6 @@ public class BookingUserService {
         entity.setTelegramLink(registrationDTO.getTelegramLink());
         entity.setFirstName(registrationDTO.getFirstName());
         entity.setSecondName(registrationDTO.getSecondName());
-        entity.setRoles(new HashSet<>(Collections.singleton(Role.USER)));
         bookingUserRepository.save(entity);
 
         return MessageSource.SUCCESS_REGISTRATION.getText();
