@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class TimeSlotDTO {
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
     @NotBlank(message = "Поле 'name' не может быть пустым.")
