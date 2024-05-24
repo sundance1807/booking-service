@@ -6,6 +6,12 @@ spring:
     username: ${DB_USER:postgres}
     password: ${DB_PASS:postgres}
     driver-class-name: org.postgresql.Driver
+  liquibase:
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
   jpa:
     hibernate:
       ddl-auto: validate
