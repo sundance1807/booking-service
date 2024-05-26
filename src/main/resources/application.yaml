@@ -18,3 +18,7 @@ spring:
     show-sql: false
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    jwt:
+      secret: 1()n2oxn$1309%82j1!@#r0nra9n1243123
+      expirationHours: 24

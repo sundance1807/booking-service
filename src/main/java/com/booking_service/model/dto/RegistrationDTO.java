@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class RegistrationDTO {
+public class RegistrationDTO { // TODO RegistrationDTO same as UserDto
 
     @NotBlank(message = "Поле 'username' не может быть пустым.")
     private String username;
@@ -14,6 +14,6 @@ public class RegistrationDTO {
     private String telegramLink;
     @NotBlank(message = "Поле 'firstName' не может быть пустым.")
     private String firstName;
-    @NotBlank(message = "Поле 'secondName' не может быть пустым.")
-    private String secondName;
+    @NotBlank(message = "Поле 'lastName' не может быть пустым.")
+    private String lastName;
 }

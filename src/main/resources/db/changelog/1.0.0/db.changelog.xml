@@ -22,7 +22,9 @@
             <column name="last_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="telegram_link" type="VARCHAR(100)"/>
+            <column name="telegram_link" type="VARCHAR(100)">
+                <constraints unique="true" nullable="false"/>
+            </column>
             <column name="registered_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -112,7 +114,8 @@
             </column>
         </createTable>
 
-        <addUniqueConstraint columnNames="date, time_slot_id, room_id" tableName="booked_time_slots" constraintName="unique_booking"/>
+        <addUniqueConstraint columnNames="date, time_slot_id, room_id" tableName="booked_time_slots"
+                             constraintName="unique_booking"/>
 
         <addForeignKeyConstraint
                 constraintName="fk_booked_time_slots_bookings"

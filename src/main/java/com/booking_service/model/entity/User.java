@@ -18,11 +18,11 @@ public class User {
     private String username;
     @Column(nullable = false, length = 100)
     private String password;
-    @Column(nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
-    @Column(nullable = false, length = 100)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-    @Column(name = "telegram_link", length = 100)
+    @Column(name = "telegram_link", nullable = false, unique = true, length = 100)
     private String telegramLink;
     @Column(name = "registered_at")
     private LocalDateTime registeredAt;
