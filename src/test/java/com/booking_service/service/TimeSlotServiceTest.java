@@ -35,7 +35,7 @@ public class TimeSlotServiceTest {
     private TimeSlotService underTest;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
         underTest = new TimeSlotService(timeSlotMapper, timeSlotRepository);
 

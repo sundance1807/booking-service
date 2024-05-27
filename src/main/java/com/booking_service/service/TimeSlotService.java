@@ -15,6 +15,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class TimeSlotService {
+
     private final TimeSlotMapper timeSlotMapper;
     private final TimeSlotRepository timeSlotRepository;
 
@@ -38,15 +39,15 @@ public class TimeSlotService {
     }
 
     public TimeSlotDTO getOne(Long id) throws CustomException {
-        return timeSlotMapper.toDTO(findById(id));
+        return timeSlotMapper.toDTO(getById(id));
     }
 
     public void deleteOne(Long id) throws CustomException {
-        TimeSlot timeSlot = findById(id);
+        TimeSlot timeSlot = getById(id);
         timeSlotRepository.delete(timeSlot);
     }
 
-    private TimeSlot findById(Long id) throws CustomException {
+    private TimeSlot getById(Long id) throws CustomException {
         return timeSlotRepository.findById(id).orElseThrow(() ->
                 CustomException.builder()
                         .httpStatus(HttpStatus.NOT_FOUND)
