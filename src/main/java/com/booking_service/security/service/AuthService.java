@@ -1,12 +1,11 @@
-package com.booking_service.service;
+package com.booking_service.security.service;
 
 import com.booking_service.exception.CustomException;
 import com.booking_service.model.dto.AuthResponseDTO;
 import com.booking_service.model.dto.LoginDTO;
 import com.booking_service.model.dto.RegistrationDTO;
-import com.booking_service.model.entity.BookingUser;
-import com.booking_service.repository.BookingUserRepository;
-import com.booking_service.security.JwtGenerator;
+import com.booking_service.model.entity.User;
+import com.booking_service.repository.UserRepository;
 import com.booking_service.util.MessageSource;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,41 +21,40 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class BookingUserService {
+public class AuthService {
 
     private AuthenticationManager authenticationManager;
-    private BookingUserRepository bookingUserRepository;
+    private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
-    private JwtGenerator jwtGenerator;
+    private JwtService jwtService;
 
-    public String saveOne(RegistrationDTO registrationDTO) throws CustomException {
+    public String createUser(RegistrationDTO registrationDTO) throws CustomException {
         String username = registrationDTO.getUsername().trim().toLowerCase();
-        Optional<BookingUser> optionalBookingUser = bookingUserRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
 
-        if (optionalBookingUser.isPresent()) {
+        if (user.isPresent()) {
             throw CustomException.builder()
                     .httpStatus(HttpStatus.NOT_FOUND)
                     .message(MessageSource.USERNAME_ALREADY_EXISTS.getText(username))
                     .build();
         }
-
-        BookingUser entity = new BookingUser();
+        User entity = new User();
         entity.setUsername(username);
         entity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
         entity.setTelegramLink(registrationDTO.getTelegramLink());
         entity.setFirstName(registrationDTO.getFirstName());
-        entity.setSecondName(registrationDTO.getSecondName());
-        bookingUserRepository.save(entity);
+        entity.setLastName(registrationDTO.getLastName());
+        userRepository.save(entity);
 
         return MessageSource.SUCCESS_REGISTRATION.getText();
     }
 
-    public AuthResponseDTO loginOne(@RequestBody LoginDTO loginDTO) {
+    public AuthResponseDTO login(@RequestBody LoginDTO loginDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
+        String token = jwtService.generateToken(authentication);
 
         return new AuthResponseDTO(token);
     }

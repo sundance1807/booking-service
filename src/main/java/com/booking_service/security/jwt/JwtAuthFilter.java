@@ -1,27 +1,30 @@
-package com.booking_service.security;
+package com.booking_service.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.booking_service.security.service.JwtService;
+import com.booking_service.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@AllArgsConstructor
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtGenerator jwtGenerator;
-    @Autowired
-    private BookingUserDetailsService bookingUserDetailsService;
+    private final JwtService jwtService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,10 +36,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             token = token.substring(7);
         }
 
-        if (StringUtils.hasText(token) && jwtGenerator.validateToken(token)) {
+        if (StringUtils.hasText(token) && jwtService.validateToken(token)) {
             DecodedJWT decodedJWT = JWT.decode(token);
             String username = decodedJWT.getSubject();
-            UserDetails userDetails = bookingUserDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,
                     null, userDetails.getAuthorities());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

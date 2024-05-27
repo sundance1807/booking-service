@@ -4,7 +4,7 @@ import com.booking_service.exception.CustomException;
 import com.booking_service.model.dto.AuthResponseDTO;
 import com.booking_service.model.dto.LoginDTO;
 import com.booking_service.model.dto.RegistrationDTO;
-import com.booking_service.service.BookingUserService;
+import com.booking_service.security.service.AuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class AuthController {
 
-    private BookingUserService bookingUserService;
+    private AuthService authService;
 
     /**
      *
@@ -28,9 +28,9 @@ public class AuthController {
      */
     @PostMapping("/registration")
     public String registration(@RequestBody RegistrationDTO registrationDTO) throws CustomException {
-        log.info("Incoming registration request: {}.", registrationDTO);
+        log.info("Incoming registration request: {}.", registrationDTO); // TODO sensitive data log
 
-        return bookingUserService.saveOne(registrationDTO);
+        return authService.createUser(registrationDTO);
     }
 
     /**
@@ -40,8 +40,8 @@ public class AuthController {
      */
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody LoginDTO loginDTO) {
-        log.info("Incoming login request from: {}.", loginDTO.getUsername());
+        log.info("Incoming login request from: {}.", loginDTO.getUsername()); // TODO sensitive data log
 
-        return bookingUserService.loginOne(loginDTO);
+        return authService.login(loginDTO);
     }
 }
