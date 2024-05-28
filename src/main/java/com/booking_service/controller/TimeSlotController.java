@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/slots/v1")
+@RequestMapping("api/v1/slots")
 public class TimeSlotController {
 
     private TimeSlotService timeSlotService;

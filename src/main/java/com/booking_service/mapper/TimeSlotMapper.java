@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 public interface TimeSlotMapper {
 
     TimeSlot toEntity(TimeSlotDTO slotDTO);
+
     TimeSlotDTO toDTO(TimeSlot timeSlot);
 
 }

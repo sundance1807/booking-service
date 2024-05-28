@@ -9,7 +9,7 @@ import lombok.Data;
 public class Room {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "name", unique = true, length = 155)
     private String name;
