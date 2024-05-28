@@ -47,7 +47,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="1.0.0-4" author="m.kossatyy">
+    <changeSet id="1.0.0-3" author="m.kossatyy">
         <createTable tableName="bookings">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -56,10 +56,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="VARCHAR(500)"/>
-            <column name="startTime" type="TIMESTAMP">
+            <column name="start_time" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="endTime" type="TIMESTAMP">
+            <column name="end_time" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">

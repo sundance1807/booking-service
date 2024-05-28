@@ -27,7 +27,7 @@ public class AuthController {
      * @throws CustomException if there duplicated username
      */
     @PostMapping("/registration")
-    public String registration(@RequestBody RegistrationDTO registrationDTO) throws CustomException {
+    public String registration(@RequestBody RegistrationDTO registrationDTO) {
         log.info("Incoming registration request: {}.", registrationDTO); // TODO sensitive data log
 
         return authService.createUser(registrationDTO);

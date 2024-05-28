@@ -28,7 +28,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     private JwtService jwtService;
 
-    public String createUser(RegistrationDTO registrationDTO) throws CustomException {
+    public String createUser(RegistrationDTO registrationDTO) {
         String username = registrationDTO.getUsername().trim().toLowerCase();
         Optional<User> user = userRepository.findByUsername(username);
 

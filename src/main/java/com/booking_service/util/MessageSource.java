@@ -10,6 +10,9 @@ public enum MessageSource {
     TIME_SLOT_ALREADY_EXISTS("Слот '%s' уже существует."),
     TIME_SLOT_NOT_FOUND("Слот не найден, id: %s."),
     ROOM_NOT_FOUND("Комната с id: '%s' не найдена."),
+    TIME_SLOTS_ALREADY_USED("Выбранные период занят"),
+    TIME_SLOTS_NOT_FOUND("Временные периоды не найдены"),
+    BOOKING_TIME_NOT_AVAILABLE("Данный период бронирования уже занят"),
     ;
     private final String text;
 
