@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,10 @@ public class BookingService {
         roomService.checkRoomExistsById(dto.getRoomId());
         String username = jwtService.getUsername();
         LocalDate date = dto.getDate();
-        List<Booking> weekBookings = bookingRepository.getWeekBookings(dto.getRoomId(), date.with(DayOfWeek.MONDAY), date.with(DayOfWeek.SUNDAY));
+        LocalDateTime startOfWeek = date.with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime endOfWeek = date.with(DayOfWeek.SUNDAY).atTime(LocalTime.MAX);
+
+        List<Booking> weekBookings = bookingRepository.getWeekBookings(dto.getRoomId(), startOfWeek, endOfWeek);
 
         return weekBookings.stream()
                 .map(booking -> {
