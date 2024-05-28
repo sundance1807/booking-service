@@ -67,10 +67,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="VARCHAR(500)"/>
-            <column name="start_time" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="end_time" type="TIMESTAMP">
+            <column name="date" type="DATE">
                 <constraints nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">

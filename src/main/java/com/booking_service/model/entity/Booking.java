@@ -1,16 +1,14 @@
 package com.booking_service.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @ToString(exclude = "timeSlots")
 @EqualsAndHashCode(exclude = "timeSlots")
 @Entity
@@ -25,9 +23,7 @@ public class Booking {
     @Column(length = 500)
     private String description;
     @Column(nullable = false)
-    private LocalDateTime startTime;
-    @Column(nullable = false)
-    private LocalDateTime endTime;
+    private LocalDate date;
     @ManyToOne(cascade = CascadeType.ALL)
     private User user;
     @ManyToOne(cascade = CascadeType.ALL)
