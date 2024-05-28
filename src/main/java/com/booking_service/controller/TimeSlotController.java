@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/api/slots/v1")
 public class TimeSlotController {
+
     private TimeSlotService timeSlotService;
 
     /**
@@ -47,7 +48,6 @@ public class TimeSlotController {
     }
 
     /**
-     *
      * @param id of time slot
      * @throws CustomException if there is no time slot with such id
      */
@@ -59,4 +59,5 @@ public class TimeSlotController {
         log.info("Incoming request to delete time slot: {}", id);
         timeSlotService.deleteOne(id);
     }
+
 }

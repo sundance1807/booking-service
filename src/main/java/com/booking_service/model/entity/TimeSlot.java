@@ -13,4 +13,5 @@ public class TimeSlot {
     private Long id;
     @Column(name = "name", nullable = false, unique = true, length = 155)
     private String name;
+
 }

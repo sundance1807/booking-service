@@ -15,6 +15,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class TimeSlotService {
+
     private final TimeSlotMapper timeSlotMapper;
     private final TimeSlotRepository timeSlotRepository;
 
@@ -53,4 +54,5 @@ public class TimeSlotService {
                         .message(MessageSource.TIME_SLOT_NOT_FOUND.getText(id.toString()))
                         .build());
     }
+
 }

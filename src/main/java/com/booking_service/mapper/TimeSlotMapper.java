@@ -9,4 +9,5 @@ public interface TimeSlotMapper {
 
     TimeSlot toEntity(TimeSlotDTO slotDTO);
     TimeSlotDTO toDTO(TimeSlot timeSlot);
+
 }
