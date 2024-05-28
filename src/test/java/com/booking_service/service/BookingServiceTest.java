@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,21 +62,29 @@ class BookingServiceTest {
     @Test
     void saveOne_returnBookingDTO() {
         // given
-        ArgumentCaptor<Booking> bookingArgumentCaptor = ArgumentCaptor.forClass(Booking.class);
-
-        BookingDTO dto = Instancio.create(BookingDTO.class);
+        ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
         Room room = Instancio.create(Room.class);
         User user = Instancio.create(User.class);
         String username = "username";
+        Booking bookingEntity = bookingMapper.toEntity(bookingDTO);
 
-        when(bookingRepository.findOverlappingBookings(dto.getRoomId(), dto.getStartTime(), dto.getEndTime())).thenReturn(Collections.emptyList());
-        when(roomService.getOneEntity(dto.getRoomId())).thenReturn(room);
+        when(bookingRepository.findOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(Collections.emptyList());
+        when(roomService.getOneEntity(bookingDTO.getRoomId())).thenReturn(room);
         when(jwtService.getUsername()).thenReturn(username);
         when(userService.getEntityByUsername(username)).thenReturn(user);
+        when(bookingRepository.save(any())).thenReturn(bookingEntity);
         //when
-        BookingDTO result = underTest.saveOne(dto);
+        BookingDTO result = underTest.saveOne(bookingDTO);
         //then
         assertNotNull(result);
-        verify(bookingRepository).save(bookingArgumentCaptor.capture());
+        verify(bookingRepository).save(captor.capture());
+        Booking savedEntity = captor.getValue();
+        assertEquals(bookingDTO.getTitle(), savedEntity.getTitle());
+        assertEquals(bookingDTO.getDescription(), savedEntity.getDescription());
+        assertEquals(bookingDTO.getStartTime(), savedEntity.getStartTime());
+        assertEquals(bookingDTO.getEndTime(), savedEntity.getEndTime());
+        assertEquals(room, savedEntity.getRoom());
+        assertEquals(user, savedEntity.getUser());
     }
 }
