@@ -68,8 +68,8 @@ public class JwtService {
 
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
             return userDetails.getUsername();
-        } else if (authentication != null && authentication.getPrincipal() instanceof String) {
-            return (String) authentication.getPrincipal();
+        } else if (authentication != null && authentication.getPrincipal() instanceof String username) {
+            return username;
         }
 
         return null;

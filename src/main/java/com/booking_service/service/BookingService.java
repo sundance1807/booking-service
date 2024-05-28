@@ -27,7 +27,7 @@ public class BookingService {
     private final JwtService jwtService;
 
      public Map<LocalDate, List<BookingDTO>> getWeekBookings(WeekBookingDTO dto) throws CustomException {
-        roomService.existById(dto.getRoomId());
+        roomService.checkRoomExistsById(dto.getRoomId());
         String username = jwtService.getUsername();
         LocalDate date = dto.getDate();
         List<Booking> weekBookings = bookingRepository.getWeekBookings(dto.getRoomId(), date.with(DayOfWeek.MONDAY), date.with(DayOfWeek.SUNDAY));

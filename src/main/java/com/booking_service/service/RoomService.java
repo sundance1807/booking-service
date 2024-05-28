@@ -13,7 +13,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    public void existById(Long roomId) throws CustomException {
+    public void checkRoomExistsById(Long roomId) throws CustomException {
         if (!roomRepository.existsById(roomId)) {
             throw CustomException.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)
