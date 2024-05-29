@@ -33,9 +33,8 @@ public class RoomService {
         Room room = roomMapper.toEntity(roomDTO);
         room.setName(roomName);
         room = roomRepository.save(room);
-        roomDTO = roomMapper.toDTO(room);
 
-        return roomDTO;
+        return roomMapper.toDTO(room);
     }
 
     public RoomDTO getOne(Long id) throws CustomException {
