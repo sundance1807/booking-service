@@ -57,7 +57,13 @@ public class BookingService {
 
     @Transactional
     public BookingDTO saveOne(BookingDTO bookingDTO) {
-        checkTimeRangeAvailable(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime());
+        boolean existsOverlappingBookings = bookingRepository.existsOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime());
+        if (existsOverlappingBookings) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message(MessageSource.BOOKING_TIME_NOT_AVAILABLE.getText())
+                    .build();
+        }
 
         Booking entity = bookingMapper.toEntity(bookingDTO);
         Room room = roomService.getOneEntity(bookingDTO.getRoomId());
@@ -69,16 +75,5 @@ public class BookingService {
         entity = bookingRepository.save(entity);
 
         return bookingMapper.toDTO(entity);
-    }
-
-    private void checkTimeRangeAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(roomId, startTime, endTime);
-
-        if (!overlappingBookings.isEmpty()) {
-            throw CustomException.builder()
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message(MessageSource.BOOKING_TIME_NOT_AVAILABLE.getText())
-                    .build();
-        }
     }
 }

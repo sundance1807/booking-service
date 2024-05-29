@@ -20,9 +20,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -48,9 +45,8 @@ class BookingServiceTest {
     void saveOne_throwException_whenTimeRangeNotAvailable() {
         // given
         BookingDTO dto = Instancio.create(BookingDTO.class);
-        List<Booking> bookings = Instancio.createList(Booking.class);
 
-        when(bookingRepository.findOverlappingBookings(dto.getRoomId(), dto.getStartTime(), dto.getEndTime())).thenReturn(bookings);
+        when(bookingRepository.existsOverlappingBookings(dto.getRoomId(), dto.getStartTime(), dto.getEndTime())).thenReturn(true);
         //when
         CustomException exception = assertThrows(CustomException.class, () -> underTest.saveOne(dto));
         //then
@@ -69,7 +65,7 @@ class BookingServiceTest {
         String username = "username";
         Booking bookingEntity = bookingMapper.toEntity(bookingDTO);
 
-        when(bookingRepository.findOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(Collections.emptyList());
+        when(bookingRepository.existsOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(false);
         when(roomService.getOneEntity(bookingDTO.getRoomId())).thenReturn(room);
         when(jwtService.getUsername()).thenReturn(username);
         when(userService.getEntityByUsername(username)).thenReturn(user);
