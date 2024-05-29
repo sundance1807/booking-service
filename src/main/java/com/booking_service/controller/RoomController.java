@@ -10,10 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/rooms/v1")
+@RequestMapping("api/v1/rooms")
 public class RoomController {
 
     private RoomService roomService;
@@ -52,11 +54,38 @@ public class RoomController {
      */
     @Operation(summary = "Удаление комнаты.")
     @ApiResponse(responseCode = "200", description = "Метод для удаления комнаты.")
-    @GetMapping("/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteOne(@PathVariable Long id) throws CustomException {
         log.info("Incoming request to delete room: {}", id);
         roomService.deleteOne(id);
+    }
+
+    /**
+     * @return list of all rooms
+     */
+    @Operation(summary = "Получение всех комнат.")
+    @ApiResponse(responseCode = "200", description = "Метод для получения всех комнат.")
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<RoomDTO> getAll() {
+        log.info("Incoming request to getAll rooms");
+        return roomService.getAll();
+    }
+
+    /**
+     * @param id the ID of the room to be updated
+     * @param roomDTO the data to update the room
+     * @return the updated room data
+     * @throws CustomException if the room with the specified ID is not found
+     */
+    @Operation(summary = "Обновление комнаты.")
+    @ApiResponse(responseCode = "200", description = "Метод для обновления комнаты.")
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public RoomDTO updateOne(@PathVariable Long id, @RequestBody RoomDTO roomDTO) throws CustomException {
+        log.info("Incoming request to update room with id {}: {}", id, roomDTO);
+        return roomService.updateOne(id, roomDTO);
     }
 
 }

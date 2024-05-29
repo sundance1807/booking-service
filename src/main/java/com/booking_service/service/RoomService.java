@@ -10,7 +10,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -51,6 +53,22 @@ public class RoomService {
                                 .httpStatus(HttpStatus.BAD_REQUEST)
                                 .message(MessageSource.ROOM_NAME_NOT_FOUND.getText(id.toString()))
                                 .build());
+    }
+
+    public List<RoomDTO> getAll() {
+        return roomRepository.findAll()
+                .stream()
+                .map(roomMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public RoomDTO updateOne(Long id, RoomDTO roomDTO) throws CustomException {
+        Room existingRoom = findById(id);
+        existingRoom.setName(roomDTO.getName());
+        existingRoom.setFloor(roomDTO.getFloor());
+        existingRoom.setCapacity(roomDTO.getCapacity());
+        Room updatedRoom = roomRepository.save(existingRoom);
+        return roomMapper.toDTO(updatedRoom);
     }
 
 }
