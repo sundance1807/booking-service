@@ -17,9 +17,9 @@ public class Booking {
     private String title;
     @Column(length = 500)
     private String description;
-    @Column(nullable = false)
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
-    @Column(nullable = false)
+    @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
     @ManyToOne(cascade = CascadeType.ALL)
     private User user;

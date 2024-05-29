@@ -3,7 +3,7 @@ package com.booking_service.model.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.time.LocalDateTime;
 
 @Data
 public class BookingDTO {
@@ -13,6 +13,7 @@ public class BookingDTO {
     private String description;
     private LocalDate date;
     private Long roomId;
-    private Set<TimeSlotDTO> timeSlots;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Boolean editable;
 }
