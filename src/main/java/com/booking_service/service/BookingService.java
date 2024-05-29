@@ -7,7 +7,9 @@ import com.booking_service.model.dto.WeekBookingDTO;
 import com.booking_service.model.entity.Booking;
 import com.booking_service.repository.BookingRepository;
 import com.booking_service.security.service.JwtService;
+import com.booking_service.util.MessageSource;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -26,7 +28,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final JwtService jwtService;
 
-     public Map<LocalDate, List<BookingDTO>> getWeekBookings(WeekBookingDTO dto) throws CustomException {
+    public Map<LocalDate, List<BookingDTO>> getWeekBookings(WeekBookingDTO dto) throws CustomException {
         roomService.checkRoomExistsById(dto.getRoomId());
         String username = jwtService.getUsername();
         LocalDate date = dto.getDate();
@@ -41,5 +43,23 @@ public class BookingService {
                 })
                 .sorted(Comparator.comparing(BookingDTO::getDate))
                 .collect(Collectors.groupingBy(BookingDTO::getDate));
+    }
+
+    public void deleteOne(Long id) throws CustomException {
+        String username = jwtService.getUsername();
+        Booking booking = bookingRepository.findById(id).orElseThrow(
+                () -> CustomException.builder()
+                        .httpStatus(HttpStatus.NOT_FOUND)
+                        .message(MessageSource.BOOKING_NOT_FOUND.getText(id.toString()))
+                        .build());
+
+        if (!booking.getUser().getUsername().equals(username)) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message(MessageSource.UNABLE_DELETE_OTHER_BOOKINGS.getText())
+                    .build();
+        } else {
+            bookingRepository.delete(booking);
+        }
     }
 }
