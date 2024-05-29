@@ -76,4 +76,22 @@ public class BookingService {
 
         return bookingMapper.toDTO(entity);
     }
+
+    public void deleteOne(Long id) throws CustomException {
+        String username = jwtService.getUsername();
+        Booking booking = bookingRepository.findById(id).orElseThrow(
+                () -> CustomException.builder()
+                        .httpStatus(HttpStatus.NOT_FOUND)
+                        .message(MessageSource.BOOKING_NOT_FOUND.getText(id.toString()))
+                        .build());
+
+        if (!booking.getUser().getUsername().equals(username)) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message(MessageSource.UNABLE_DELETE_OTHER_BOOKINGS.getText())
+                    .build();
+        } else {
+            bookingRepository.delete(booking);
+        }
+    }
 }

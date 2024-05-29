@@ -39,6 +39,20 @@ public class BookingController {
     }
 
     /**
+     * @param id booking id to delete
+     * @throws CustomException if room not found,
+     *                         if unable to delete other booking;
+     */
+    @Operation(summary = "Удалить бронь по ID.")
+    @ApiResponse(responseCode = "204", description = "Метод для удаления брони по ID.")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOne(@PathVariable Long id) throws CustomException {
+        log.info("Incoming request to delete booking by id: {}", id);
+        bookingService.deleteOne(id);
+    }
+
+    /**
      * Create a new booking
      *
      * @throws CustomException if room not found, time range is not free, or user is not authorized

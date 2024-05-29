@@ -11,8 +11,9 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(name = "name", unique = true, length = 155)
     private String name;
     private Integer floor;
     private Integer capacity;
+
 }
