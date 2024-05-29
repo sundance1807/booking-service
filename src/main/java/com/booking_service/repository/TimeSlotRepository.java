@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
-
+    
     Optional<TimeSlot> findByName(String name);
-
 }

@@ -1,18 +1,11 @@
 package com.booking_service.model.entity;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-@Getter
-@Setter
-@ToString(exclude = "timeSlots")
-@EqualsAndHashCode(exclude = "timeSlots")
+@Data
 @Entity
 @Table(name = "bookings")
 public class Booking {
@@ -32,9 +25,4 @@ public class Booking {
     private User user;
     @ManyToOne(cascade = CascadeType.ALL)
     private Room room;
-    @ManyToMany
-    @JoinTable(name = "booked_time_slots",
-            joinColumns = @JoinColumn(name = "booking_id"),
-            inverseJoinColumns = @JoinColumn(name = "time_slot_id"))
-    private Set<TimeSlot> timeSlots;
 }

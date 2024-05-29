@@ -11,7 +11,8 @@ public enum MessageSource {
     TIME_SLOT_ALREADY_EXISTS("Слот '%s' уже существует."),
     TIME_SLOT_NOT_FOUND("Слот не найден, id: %s."),
     ROOM_NAME_ALREADY_EXISTS("Комната '%s' уже существует."),
-    ROOM_NAME_NOT_FOUND("Комната не найдена, id: %s.");
+    ROOM_NAME_NOT_FOUND("Комната не найдена, id: %s."),
+    ROOM_NOT_FOUND("Комната с id: '%s' не найдена.");
 
     private String text;
 

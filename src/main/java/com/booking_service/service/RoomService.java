@@ -71,4 +71,13 @@ public class RoomService {
         return roomMapper.toDTO(updatedRoom);
     }
 
+    public void checkRoomExistsById(Long roomId) throws CustomException {
+        if (!roomRepository.existsById(roomId)) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message(MessageSource.ROOM_NOT_FOUND.getText(roomId.toString()))
+                    .build();
+        }
+    }
+
 }

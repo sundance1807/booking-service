@@ -48,6 +48,7 @@ public class TimeSlotController {
     }
 
     /**
+     *
      * @param id of time slot
      * @throws CustomException if there is no time slot with such id
      */
@@ -59,5 +60,4 @@ public class TimeSlotController {
         log.info("Incoming request to delete time slot: {}", id);
         timeSlotService.deleteOne(id);
     }
-
 }

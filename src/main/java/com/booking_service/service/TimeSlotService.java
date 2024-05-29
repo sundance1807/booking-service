@@ -54,5 +54,4 @@ public class TimeSlotService {
                         .message(MessageSource.TIME_SLOT_NOT_FOUND.getText(id.toString()))
                         .build());
     }
-
 }
