@@ -6,6 +6,7 @@ import com.booking_service.mapper.RoomMapper;
 import com.booking_service.model.dto.RoomDTO;
 import com.booking_service.repository.RoomRepository;
 import com.booking_service.util.MessageSource;
+import com.booking_service.util.StringUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
 
     public RoomDTO saveOne(RoomDTO roomDTO) throws CustomException {
-        String roomName = roomDTO.getName().toLowerCase().trim();
+        String roomName = StringUtil.toLowerCaseAndTrim(roomDTO.getName());
         Optional<Room> optionalRoom = roomRepository.findByName(roomName);
 
         if (optionalRoom.isPresent()) {
@@ -50,9 +51,9 @@ public class RoomService {
 
     private Room findById(Long id) throws CustomException {
         return roomRepository.findById(id).orElseThrow(() -> CustomException.builder()
-                                .httpStatus(HttpStatus.BAD_REQUEST)
-                                .message(MessageSource.ROOM_NAME_NOT_FOUND.getText(id.toString()))
-                                .build());
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .message(MessageSource.ROOM_NAME_NOT_FOUND.getText(id.toString()))
+                .build());
     }
 
     public List<RoomDTO> getAll() {
