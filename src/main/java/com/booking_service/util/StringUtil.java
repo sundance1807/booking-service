@@ -1,8 +1,8 @@
 package com.booking_service.util;
 
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor
+@UtilityClass
 public class StringUtil {
 
     private static final String TG_PREFIX_AT = "@";
