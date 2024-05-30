@@ -24,7 +24,7 @@ public class UserService {
     public User getEntityByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> CustomException.builder()
-                        .message(MessageSource.USER_NOT_FOUND.getText())
+                        .message(MessageSource.USER_NOT_FOUND.getText(username))
                         .httpStatus(HttpStatus.NOT_FOUND)
                         .build());
     }

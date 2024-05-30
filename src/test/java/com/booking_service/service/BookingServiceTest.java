@@ -83,4 +83,44 @@ class BookingServiceTest {
         assertEquals(room, savedEntity.getRoom());
         assertEquals(user, savedEntity.getUser());
     }
+
+    @Test
+    void saveOne_throwException_whenRoomNotFound() {
+        // given
+        BookingDTO dto = Instancio.create(BookingDTO.class);
+        Long roomId = dto.getRoomId();
+
+        when(bookingRepository.existsOverlappingBookings(roomId, dto.getStartTime(), dto.getEndTime())).thenReturn(false);
+        when(roomService.getOneEntity(roomId)).thenThrow(CustomException.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(MessageSource.ROOM_NOT_FOUND.getText(roomId.toString()))
+                .build());
+        //when
+        CustomException exception = assertThrows(CustomException.class, () -> underTest.saveOne(dto));
+        //then
+        assertNotNull(exception);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
+        assertEquals(MessageSource.ROOM_NOT_FOUND.getText(roomId.toString()), exception.getMessage());
+    }
+
+    @Test
+    void saveOne_throwException_whenUserNotFound() {
+        // given
+        BookingDTO dto = Instancio.create(BookingDTO.class);
+        String username = "username";
+
+        when(bookingRepository.existsOverlappingBookings(dto.getRoomId(), dto.getStartTime(), dto.getEndTime())).thenReturn(false);
+        when(roomService.getOneEntity(dto.getRoomId())).thenReturn(Instancio.create(Room.class));
+        when(jwtService.getUsername()).thenReturn(username);
+        when(userService.getEntityByUsername(any())).thenThrow(CustomException.builder()
+                .httpStatus(HttpStatus.NOT_FOUND)
+                .message(MessageSource.USER_NOT_FOUND.getText(username))
+                .build());
+        //when
+        CustomException exception = assertThrows(CustomException.class, () -> underTest.saveOne(dto));
+        //then
+        assertNotNull(exception);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
+        assertEquals(MessageSource.USER_NOT_FOUND.getText(username), exception.getMessage());
+    }
 }

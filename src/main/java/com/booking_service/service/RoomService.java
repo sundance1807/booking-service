@@ -83,7 +83,7 @@ public class RoomService {
     public Room getOneEntity(Long id) {
         return roomRepository.findById(id)
                 .orElseThrow(() -> CustomException.builder()
-                        .message(MessageSource.ROOM_NOT_FOUND.getText())
+                        .message(MessageSource.ROOM_NOT_FOUND.getText(id.toString()))
                         .httpStatus(HttpStatus.NOT_FOUND)
                         .build());
     }
