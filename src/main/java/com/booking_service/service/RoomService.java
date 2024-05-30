@@ -1,9 +1,9 @@
 package com.booking_service.service;
 
 import com.booking_service.exception.CustomException;
-import com.booking_service.model.entity.Room;
 import com.booking_service.mapper.RoomMapper;
 import com.booking_service.model.dto.RoomDTO;
+import com.booking_service.model.entity.Room;
 import com.booking_service.repository.RoomRepository;
 import com.booking_service.util.MessageSource;
 import com.booking_service.util.StringUtil;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,7 +21,7 @@ public class RoomService {
     private final RoomMapper roomMapper;
     private final RoomRepository roomRepository;
 
-    public RoomDTO saveOne(RoomDTO roomDTO) throws CustomException {
+    public RoomDTO saveOne(RoomDTO roomDTO) {
         String roomName = StringUtil.toLowerCaseAndTrim(roomDTO.getName());
         Optional<Room> optionalRoom = roomRepository.findByName(roomName);
 
@@ -40,16 +39,16 @@ public class RoomService {
         return roomMapper.toDTO(room);
     }
 
-    public RoomDTO getOne(Long id) throws CustomException {
+    public RoomDTO getOne(Long id) {
         return roomMapper.toDTO(findById(id));
     }
 
-    public void deleteOne(Long id) throws CustomException {
+    public void deleteOne(Long id) {
         Room room = findById(id);
         roomRepository.delete(room);
     }
 
-    private Room findById(Long id) throws CustomException {
+    private Room findById(Long id) {
         return roomRepository.findById(id).orElseThrow(() -> CustomException.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(MessageSource.ROOM_NAME_NOT_FOUND.getText(id.toString()))
@@ -60,10 +59,10 @@ public class RoomService {
         return roomRepository.findAll()
                 .stream()
                 .map(roomMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public RoomDTO updateOne(Long id, RoomDTO roomDTO) throws CustomException {
+    public RoomDTO updateOne(Long id, RoomDTO roomDTO) {
         Room existingRoom = findById(id);
         existingRoom.setName(roomDTO.getName());
         existingRoom.setFloor(roomDTO.getFloor());
@@ -72,7 +71,7 @@ public class RoomService {
         return roomMapper.toDTO(updatedRoom);
     }
 
-    public void checkRoomExistsById(Long roomId) throws CustomException {
+    public void checkRoomExistsById(Long roomId) {
         if (!roomRepository.existsById(roomId)) {
             throw CustomException.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)

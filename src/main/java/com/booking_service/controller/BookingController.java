@@ -33,7 +33,7 @@ public class BookingController {
     @ApiResponse(responseCode = "200", description = "Метод для получения всех броней за текущую неделю.")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Map<LocalDate, List<BookingDTO>> getWeekBooking(@RequestBody WeekBookingDTO dto) {
+    public Map<LocalDate, List<BookingDTO>> getWeekBooking(@RequestBody @Valid WeekBookingDTO dto) {
         log.info("Incoming request to get all booking by weekday.");
         return bookingService.getWeekBookings(dto);
     }
@@ -47,7 +47,7 @@ public class BookingController {
     @ApiResponse(responseCode = "204", description = "Метод для удаления брони по ID.")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOne(@PathVariable Long id) throws CustomException {
+    public void deleteOne(@PathVariable Long id) {
         log.info("Incoming request to delete booking by id: {}", id);
         bookingService.deleteOne(id);
     }

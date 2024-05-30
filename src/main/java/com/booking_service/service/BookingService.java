@@ -77,7 +77,7 @@ public class BookingService {
         return bookingMapper.toDTO(entity);
     }
 
-    public void deleteOne(Long id) throws CustomException {
+    public void deleteOne(Long id) {
         String username = jwtService.getUsername();
         Booking booking = bookingRepository.findById(id).orElseThrow(
                 () -> CustomException.builder()
@@ -87,7 +87,7 @@ public class BookingService {
 
         if (!booking.getUser().getUsername().equals(username)) {
             throw CustomException.builder()
-                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .httpStatus(HttpStatus.FORBIDDEN)
                     .message(MessageSource.UNABLE_DELETE_OTHER_BOOKINGS.getText())
                     .build();
         } else {

@@ -5,6 +5,8 @@ import com.booking_service.model.dto.AuthResponseDTO;
 import com.booking_service.model.dto.LoginDTO;
 import com.booking_service.model.dto.RegistrationDTO;
 import com.booking_service.security.service.AuthService;
+import com.booking_service.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class AuthController {
 
-    private AuthService authService;
+    private final AuthService authService;
+    private final UserService userService;
 
     /**
      *
@@ -27,10 +30,10 @@ public class AuthController {
      * @throws CustomException if there duplicated username
      */
     @PostMapping("/registration")
-    public String registration(@RequestBody RegistrationDTO registrationDTO) {
-        log.info("Incoming registration request: {}.", registrationDTO); // TODO sensitive data log
+    public String registration(@RequestBody @Valid RegistrationDTO registrationDTO) {
+        log.info("Incoming registration request: {}.", registrationDTO);
 
-        return authService.createUser(registrationDTO);
+        return userService.createUser(registrationDTO);
     }
 
     /**
@@ -39,8 +42,8 @@ public class AuthController {
      * @return token
      */
     @PostMapping("/login")
-    public AuthResponseDTO login(@RequestBody LoginDTO loginDTO) {
-        log.info("Incoming login request from: {}.", loginDTO.getUsername()); // TODO sensitive data log
+    public AuthResponseDTO login(@RequestBody @Valid LoginDTO loginDTO) {
+        log.info("Incoming login request from: {}.", loginDTO.getUsername());
 
         return authService.login(loginDTO);
     }

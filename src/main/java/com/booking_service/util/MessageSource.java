@@ -15,11 +15,11 @@ public enum MessageSource {
     ROOM_NAME_NOT_FOUND("Комната не найдена, id: %s."),
     BOOKING_NOT_FOUND("Запись с id: '%s' не найдена."),
     UNABLE_DELETE_OTHER_BOOKINGS("Невозможно удалить чужую бронь."),
-
     ;
+
     private final String text;
 
     public String getText(String... params) {
-        return String.format(this.text, params);
+        return String.format(this.text, (Object[]) params);
     }
 }
