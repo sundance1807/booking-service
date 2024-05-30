@@ -7,6 +7,7 @@ import com.booking_service.model.dto.RegistrationDTO;
 import com.booking_service.model.entity.User;
 import com.booking_service.repository.UserRepository;
 import com.booking_service.util.MessageSource;
+import com.booking_service.util.StringUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +30,9 @@ public class AuthService {
     private JwtService jwtService;
 
     public String createUser(RegistrationDTO registrationDTO) throws CustomException {
-        String username = registrationDTO.getUsername().trim().toLowerCase();
+        String username = StringUtil.toLowerCaseAndTrim(registrationDTO.getUsername());
+        String formatedTelegramLink = StringUtil.formatTelegramLink(registrationDTO.getTelegramLink());
+        checkUniquenessTelegramLink(formatedTelegramLink);
         Optional<User> user = userRepository.findByUsername(username);
 
         if (user.isPresent()) {
@@ -38,10 +41,11 @@ public class AuthService {
                     .message(MessageSource.USERNAME_ALREADY_EXISTS.getText(username))
                     .build();
         }
+
         User entity = new User();
         entity.setUsername(username);
         entity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
-        entity.setTelegramLink(registrationDTO.getTelegramLink());
+        entity.setTelegramLink(formatedTelegramLink);
         entity.setFirstName(registrationDTO.getFirstName());
         entity.setLastName(registrationDTO.getLastName());
         userRepository.save(entity);
@@ -57,5 +61,16 @@ public class AuthService {
         String token = jwtService.generateToken(authentication);
 
         return new AuthResponseDTO(token);
+    }
+
+    private void checkUniquenessTelegramLink(String telegramLink) throws CustomException {
+        Optional<User> user = userRepository.findByTelegramLink(telegramLink);
+
+        if (user.isPresent()) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message(MessageSource.TELEGRAM_LINK_ALREADY_EXISTS.getText(telegramLink))
+                    .build();
+        }
     }
 }
