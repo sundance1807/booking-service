@@ -5,6 +5,7 @@ import com.booking_service.model.dto.RoomDTO;
 import com.booking_service.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Метод для создания комнаты.")
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public RoomDTO saveOne(@RequestBody RoomDTO roomDTO) throws CustomException {
+    public RoomDTO saveOne(@RequestBody @Valid RoomDTO roomDTO) {
         log.info("Incoming request to save room: {}", roomDTO);
         return roomService.saveOne(roomDTO);
     }
@@ -43,7 +44,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Метод для получения комнаты.")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RoomDTO getOne(@PathVariable Long id) throws CustomException {
+    public RoomDTO getOne(@PathVariable Long id) {
         log.info("Incoming request to get one room: {}", id);
         return roomService.getOne(id);
     }
@@ -56,7 +57,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Метод для удаления комнаты.")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteOne(@PathVariable Long id) throws CustomException {
+    public void deleteOne(@PathVariable Long id) {
         log.info("Incoming request to delete room: {}", id);
         roomService.deleteOne(id);
     }
@@ -83,7 +84,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Метод для обновления комнаты.")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RoomDTO updateOne(@PathVariable Long id, @RequestBody RoomDTO roomDTO) throws CustomException {
+    public RoomDTO updateOne(@PathVariable Long id, @RequestBody @Valid RoomDTO roomDTO) {
         log.info("Incoming request to update room with id {}: {}", id, roomDTO);
         return roomService.updateOne(id, roomDTO);
     }

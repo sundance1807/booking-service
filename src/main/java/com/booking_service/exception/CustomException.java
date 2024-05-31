@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CustomException extends Exception {
+public class CustomException extends RuntimeException {
 
     HttpStatus httpStatus;
     String message;

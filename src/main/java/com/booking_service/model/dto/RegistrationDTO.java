@@ -2,9 +2,11 @@ package com.booking_service.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.ToString;
 
+@ToString(exclude = "password")
 @Data
-public class RegistrationDTO { // TODO RegistrationDTO same as UserDto
+public class RegistrationDTO {
 
     @NotBlank(message = "Поле 'username' не может быть пустым.")
     private String username;
