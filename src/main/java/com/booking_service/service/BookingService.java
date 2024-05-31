@@ -36,7 +36,7 @@ public class BookingService {
 
     public Map<LocalDate, List<BookingDTO>> getWeekBookings(WeekBookingDTO dto) {
         roomService.checkRoomExistsById(dto.getRoomId());
-        String username = jwtService.getUsername();
+        String username = getCurrentUsername();
         LocalDate date = dto.getDate();
         LocalDateTime startOfWeek = date.with(DayOfWeek.MONDAY).atStartOfDay();
         LocalDateTime endOfWeek = date.with(DayOfWeek.SUNDAY).atTime(LocalTime.MAX);
@@ -67,7 +67,7 @@ public class BookingService {
 
         Booking entity = bookingMapper.toEntity(bookingDTO);
         Room room = roomService.getOneEntity(bookingDTO.getRoomId());
-        String username = jwtService.getUsername();
+        String username = getCurrentUsername();
         User user = userService.getEntityByUsername(username);
 
         entity.setRoom(room);
@@ -78,7 +78,7 @@ public class BookingService {
     }
 
     public void deleteOne(Long id) {
-        String username = jwtService.getUsername();
+        String username = getCurrentUsername();
         Booking booking = bookingRepository.findById(id).orElseThrow(
                 () -> CustomException.builder()
                         .httpStatus(HttpStatus.NOT_FOUND)
@@ -93,5 +93,61 @@ public class BookingService {
         } else {
             bookingRepository.delete(booking);
         }
+    }
+
+    @Transactional
+    public BookingDTO updateOne(BookingDTO bookingDTO) {
+        String username = getCurrentUsername();
+        Booking booking = getBookingById(bookingDTO.getId());
+
+        checkUserAccessToUpdate(booking, username);
+        checkForOverlappingBookings(bookingDTO, booking.getId());
+
+        updateBookingDetails(booking, bookingDTO);
+        booking = bookingRepository.save(booking);
+
+        return bookingMapper.toDTO(booking);
+    }
+
+    private String getCurrentUsername() {
+        return jwtService.getUsername();
+    }
+
+    private Booking getBookingById(Long bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(
+                () -> CustomException.builder()
+                        .httpStatus(HttpStatus.NOT_FOUND)
+                        .message(MessageSource.BOOKING_NOT_FOUND.getText(bookingId.toString()))
+                        .build());
+    }
+
+    private void checkUserAccessToUpdate(Booking booking, String username) {
+        if (!booking.getUser().getUsername().equals(username)) {
+            throw CustomException.builder()
+                    .httpStatus(HttpStatus.FORBIDDEN)
+                    .message(MessageSource.UNABLE_UPDATE_OTHER_BOOKINGS.getText())
+                    .build();
+        }
+    }
+
+    private void checkForOverlappingBookings(BookingDTO bookingDTO, Long bookingId) {
+        bookingRepository.getOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())
+                .forEach(overlappingBooking -> {
+                    if (!overlappingBooking.getId().equals(bookingId)) {
+                        throw CustomException.builder()
+                                .httpStatus(HttpStatus.BAD_REQUEST)
+                                .message(MessageSource.BOOKING_TIME_NOT_AVAILABLE.getText())
+                                .build();
+                    }
+                });
+    }
+
+    private void updateBookingDetails(Booking booking, BookingDTO bookingDTO) {
+        booking.setTitle(bookingDTO.getTitle());
+        booking.setDescription(bookingDTO.getDescription());
+        booking.setStartTime(bookingDTO.getStartTime());
+        booking.setEndTime(bookingDTO.getEndTime());
+        Room room = roomService.getOneEntity(bookingDTO.getRoomId());
+        booking.setRoom(room);
     }
 }

@@ -65,4 +65,19 @@ public class BookingController {
         log.info("Incoming request to save booking: {}", dto);
         return bookingService.saveOne(dto);
     }
+
+    /**
+     * @param bookingDTO booking to update
+     * @return updated booking
+     * @throws CustomException if room not found,
+     *                         if unable to update booking
+     */
+    @Operation(summary = "Обновить бронь.")
+    @ApiResponse(responseCode = "200", description = "Метод для обновления брони.")
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public BookingDTO updateOne(@RequestBody @Valid BookingDTO bookingDTO) {
+        log.info("Incoming request to update booking: {}", bookingDTO);
+        return bookingService.updateOne(bookingDTO);
+    }
 }

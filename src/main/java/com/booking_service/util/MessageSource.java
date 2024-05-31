@@ -15,6 +15,7 @@ public enum MessageSource {
     ROOM_NAME_NOT_FOUND("Комната не найдена, id: %s."),
     BOOKING_NOT_FOUND("Запись с id: '%s' не найдена."),
     UNABLE_DELETE_OTHER_BOOKINGS("Невозможно удалить чужую бронь."),
+    UNABLE_UPDATE_OTHER_BOOKINGS("Невозможно изменить чужую бронь."),
     ;
 
     private final String text;
