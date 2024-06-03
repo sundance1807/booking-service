@@ -20,10 +20,12 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
@@ -122,5 +124,148 @@ class BookingServiceTest {
         assertNotNull(exception);
         assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
         assertEquals(MessageSource.USER_NOT_FOUND.getText(username), exception.getMessage());
+    }
+
+    @Test
+    void updateOne_throwException_whenBookingNotFound() {
+        // given
+        String username = "username";
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
+
+        when(jwtService.getUsername()).thenReturn(username);
+        when(bookingRepository.findById(any())).thenReturn(Optional.empty());
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> underTest.updateOne(bookingDTO));
+        // then
+        assertNotNull(exception);
+        assertEquals(HttpStatus.NOT_FOUND, exception.getHttpStatus());
+        assertEquals(MessageSource.BOOKING_NOT_FOUND.getText(bookingDTO.getId().toString()), exception.getMessage());
+    }
+
+    @Test
+    void updateOne_throwException_whenUserHasNoAccessToUpdateBooking() {
+        // given
+        String username = "username";
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
+        Booking booking = Instancio.create(Booking.class);
+        User user = Instancio.create(User.class);
+        user.setUsername("anotherUsername");
+        booking.setUser(user);
+
+        when(jwtService.getUsername()).thenReturn(username);
+        when(bookingRepository.findById(bookingDTO.getId())).thenReturn(Optional.of(booking));
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> underTest.updateOne(bookingDTO));
+        // then
+        assertNotNull(exception);
+        assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus());
+        assertEquals(MessageSource.UNABLE_UPDATE_OTHER_BOOKINGS.getText(), exception.getMessage());
+    }
+
+    @Test
+    void updateOne_throwException_whenTimeRangeNotAvailable() {
+        // given
+        String username = "username";
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
+        Booking booking = Instancio.create(Booking.class);
+        booking.setId(bookingDTO.getId());
+        booking.setStartTime(bookingDTO.getStartTime());
+        booking.setEndTime(bookingDTO.getEndTime());
+        booking.setUser(Instancio.create(User.class));
+        booking.getUser().setUsername(username);
+
+        Booking overlappingBooking = Instancio.create(Booking.class);
+        overlappingBooking.setId(bookingDTO.getId() + 1);
+        overlappingBooking.setStartTime(bookingDTO.getStartTime());
+        overlappingBooking.setEndTime(bookingDTO.getEndTime());
+
+        when(jwtService.getUsername()).thenReturn(username);
+        when(bookingRepository.findById(bookingDTO.getId())).thenReturn(Optional.of(booking));
+        when(bookingRepository.getOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(List.of(overlappingBooking));
+        // when
+        CustomException exception = assertThrows(CustomException.class, () -> underTest.updateOne(bookingDTO));
+        // then
+        assertNotNull(exception);
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus());
+        assertEquals(MessageSource.BOOKING_TIME_NOT_AVAILABLE.getText(), exception.getMessage());
+    }
+
+    @Test
+    void updateOne_returnBookingDTO_whenDifferentRoom() {
+        // given
+        ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
+        String username = "username";
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
+        Booking booking = Instancio.create(Booking.class);
+        booking.setId(bookingDTO.getId());
+        booking.setUser(Instancio.create(User.class));
+        booking.getUser().setUsername(username);
+
+        Room room = Instancio.create(Room.class);
+        booking.setRoom(room);
+        Room anotherRoom = Instancio.create(Room.class);
+        anotherRoom.setId(room.getId() + 1L);
+        bookingDTO.setRoomId(anotherRoom.getId());
+
+        when(jwtService.getUsername()).thenReturn(username);
+        when(bookingRepository.findById(bookingDTO.getId())).thenReturn(Optional.of(booking));
+        when(bookingRepository.getOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(List.of());
+        when(bookingRepository.save(any())).thenReturn(booking);
+        when(roomService.getOneEntity(bookingDTO.getRoomId())).thenReturn(anotherRoom);
+        // when
+        BookingDTO result = underTest.updateOne(bookingDTO);
+        // then
+        assertNotNull(result);
+        assertEquals(bookingDTO.getTitle(), result.getTitle());
+        assertEquals(bookingDTO.getDescription(), result.getDescription());
+        assertEquals(bookingDTO.getStartTime(), result.getStartTime());
+        assertEquals(bookingDTO.getEndTime(), result.getEndTime());
+
+        verify(bookingRepository).save(captor.capture());
+        Booking savedEntity = captor.getValue();
+        assertEquals(bookingDTO.getTitle(), savedEntity.getTitle());
+        assertEquals(bookingDTO.getDescription(), savedEntity.getDescription());
+        assertEquals(bookingDTO.getStartTime(), savedEntity.getStartTime());
+        assertEquals(bookingDTO.getEndTime(), savedEntity.getEndTime());
+        assertEquals(bookingDTO.getRoomId(), savedEntity.getRoom().getId());
+    }
+
+    @Test
+    void updateOne_returnBookingDTO_whenSameRoom() {
+        // given
+        ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
+        String username = "username";
+        BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
+        Booking booking = Instancio.create(Booking.class);
+        booking.setId(bookingDTO.getId());
+        booking.setUser(Instancio.create(User.class));
+        booking.getUser().setUsername(username);
+
+        Room room = Instancio.create(Room.class);
+        booking.setRoom(room);
+        bookingDTO.setRoomId(room.getId());
+
+        when(jwtService.getUsername()).thenReturn(username);
+        when(bookingRepository.findById(bookingDTO.getId())).thenReturn(Optional.of(booking));
+        when(bookingRepository.getOverlappingBookings(bookingDTO.getRoomId(), bookingDTO.getStartTime(), bookingDTO.getEndTime())).thenReturn(List.of());
+        when(bookingRepository.save(any())).thenReturn(booking);
+        // when
+        BookingDTO result = underTest.updateOne(bookingDTO);
+        // then
+        assertNotNull(result);
+        assertEquals(bookingDTO.getTitle(), result.getTitle());
+        assertEquals(bookingDTO.getDescription(), result.getDescription());
+        assertEquals(bookingDTO.getStartTime(), result.getStartTime());
+        assertEquals(bookingDTO.getEndTime(), result.getEndTime());
+
+        verify(bookingRepository).save(captor.capture());
+        Booking savedEntity = captor.getValue();
+        assertEquals(bookingDTO.getTitle(), savedEntity.getTitle());
+        assertEquals(bookingDTO.getDescription(), savedEntity.getDescription());
+        assertEquals(bookingDTO.getStartTime(), savedEntity.getStartTime());
+        assertEquals(bookingDTO.getEndTime(), savedEntity.getEndTime());
+        assertEquals(bookingDTO.getRoomId(), savedEntity.getRoom().getId());
+
+        verify(roomService, never()).getOneEntity(any());
     }
 }
