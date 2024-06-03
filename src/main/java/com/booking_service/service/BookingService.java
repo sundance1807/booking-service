@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,7 +148,10 @@ public class BookingService {
         booking.setDescription(bookingDTO.getDescription());
         booking.setStartTime(bookingDTO.getStartTime());
         booking.setEndTime(bookingDTO.getEndTime());
-        Room room = roomService.getOneEntity(bookingDTO.getRoomId());
-        booking.setRoom(room);
+
+        if (!Objects.equals(booking.getRoom().getId(), bookingDTO.getRoomId())) {
+            Room room = roomService.getOneEntity(bookingDTO.getRoomId());
+            booking.setRoom(room);
+        }
     }
 }
