@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  booking-service:
+    build: .
+    image: booking-service:latest
+    container_name: booking-service
+    environment:
+      DB_HOST: booking-db
+      DB_PORT: 5432
+      DB_NAME: booking
+      DB_SCHEMA: public
+      DB_USER: postgres
+      DB_PASS: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - booking-db
+    networks:
+      - booking-network
+
+  booking-db:
+    image: postgres:15
+    container_name: booking-db
+    environment:
+      POSTGRES_DB: booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - booking-db-data:/var/lib/postgresql/data
+    networks:
+      - booking-network
+
+networks:
+  booking-network:
+    driver: bridge
+
+volumes:
+  booking-db-data:
