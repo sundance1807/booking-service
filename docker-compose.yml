@@ -19,7 +19,7 @@ services:
       - booking-network
 
   booking-db:
-    image: postgres:13
+    image: postgres:15
     container_name: booking-db
     environment:
       POSTGRES_DB: booking
