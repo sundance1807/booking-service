@@ -42,6 +42,10 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
+bootJar {
+	mainClass.set('com.booking_service.BookingServiceApplication')
+}
+
 tasks.named('test', Test) {
 	useJUnitPlatform()
 }
