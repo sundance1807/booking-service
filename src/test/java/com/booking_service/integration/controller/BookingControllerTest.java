@@ -225,4 +225,81 @@ class BookingControllerTest {
         assertEquals(bookingDTO.getEndTime(), savedDTO.getEndTime());
         assertEquals(bookingDTO.getRoomId(), savedDTO.getRoomId());
     }
+
+    @Test
+    void deleteOne_throwException_whenBookingNotFound() throws Exception {
+        Long bookingId = 1L;
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", bookingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isNotFound()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+
+        assertEquals(MessageSource.BOOKING_NOT_FOUND.getText(bookingId.toString()), errorResponseDTO.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.value(), errorResponseDTO.getCode());
+    }
+
+    @Test
+    void deleteOne_throwException_whenUserNotAuthorized() throws Exception {
+        // given
+        User user = Instancio.create(User.class);
+        user.setUsername("user");
+        user = userRepository.save(user);
+        Booking booking = Instancio.create(Booking.class);
+        booking.setUser(user);
+        booking = bookingRepository.save(booking);
+
+        User anotherUser = Instancio.create(User.class);
+        anotherUser.setUsername("another_user");
+        anotherUser = userRepository.save(anotherUser);
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(anotherUser);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isForbidden()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+
+        assertEquals(MessageSource.UNABLE_DELETE_OTHER_BOOKINGS.getText(), errorResponseDTO.getMessage());
+        assertEquals(HttpStatus.FORBIDDEN.value(), errorResponseDTO.getCode());
+    }
+
+    @Test
+    void deleteOne_deletesBooking() throws Exception {
+        // given
+        User user = userRepository.save(Instancio.create(User.class));
+        Booking booking = Instancio.create(Booking.class);
+        booking.setUser(user);
+        booking = bookingRepository.save(booking);
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(user);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        // when
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isNoContent());
+
+        assertFalse(bookingRepository.existsById(booking.getId()));
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isNotFound()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+
+        assertEquals(MessageSource.BOOKING_NOT_FOUND.getText(booking.getId().toString()), errorResponseDTO.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.value(), errorResponseDTO.getCode());
+    }
 }
