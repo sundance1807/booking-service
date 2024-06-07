@@ -3,6 +3,7 @@ package com.booking_service.integration.controller;
 import com.booking_service.integration.config.SpringBootTestContainers;
 import com.booking_service.model.dto.BookingDTO;
 import com.booking_service.model.dto.ErrorResponseDTO;
+import com.booking_service.model.dto.WeekBookingDTO;
 import com.booking_service.model.entity.Booking;
 import com.booking_service.model.entity.Room;
 import com.booking_service.model.entity.User;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -301,5 +303,51 @@ class BookingControllerTest {
 
         assertEquals(MessageSource.BOOKING_NOT_FOUND.getText(booking.getId().toString()), errorResponseDTO.getMessage());
         assertEquals(HttpStatus.NOT_FOUND.value(), errorResponseDTO.getCode());
+    }
+
+    @Test
+    void getWeekBooking_returnsBadRequest_whenNullValidationFailed() throws Exception {
+        // given
+        String requestBody = objectMapper.writeValueAsString(new WeekBookingDTO());
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/bookings/week")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isBadRequest()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+        Map<String, String> invalidFields = errorResponseDTO.getInvalidFields();
+
+        assertEquals(2, invalidFields.size());
+        assertTrue(invalidFields.containsKey("roomId"));
+        assertTrue(invalidFields.containsKey("date"));
+        assertEquals("Поле 'roomId' не может быть пустым", invalidFields.get("roomId"));
+        assertEquals("Поле 'date' не может быть пустым", invalidFields.get("date"));
+    }
+
+    @Test
+    void getWeekBooking_returnsBadRequest_whenMinValueValidationFailed() throws Exception {
+        // given
+        WeekBookingDTO weekBookingDTO = new WeekBookingDTO();
+        weekBookingDTO.setRoomId(-100L);
+        weekBookingDTO.setDate(LocalDate.of(2024, 2, 1));
+
+        String requestBody = objectMapper.writeValueAsString(weekBookingDTO);
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/bookings/week")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isBadRequest()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+        Map<String, String> invalidFields = errorResponseDTO.getInvalidFields();
+
+        assertEquals(1, invalidFields.size());
+        assertTrue(invalidFields.containsKey("roomId"));
+        assertEquals("Поле 'roomId' должно быть больше 0", invalidFields.get("roomId"));
     }
 }
