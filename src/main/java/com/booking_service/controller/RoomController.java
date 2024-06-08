@@ -75,18 +75,16 @@ public class RoomController {
     }
 
     /**
-     * @param id the ID of the room to be updated
      * @param roomDTO the data to update the room
      * @return the updated room data
      * @throws CustomException if the room with the specified ID is not found
      */
     @Operation(summary = "Обновление комнаты.")
     @ApiResponse(responseCode = "200", description = "Метод для обновления комнаты.")
-    @PutMapping("/{id}")
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public RoomDTO updateOne(@PathVariable Long id, @RequestBody @Valid RoomDTO roomDTO) {
-        log.info("Incoming request to update room with id {}: {}", id, roomDTO);
-        return roomService.updateOne(id, roomDTO);
+    public RoomDTO updateOne(@RequestBody @Valid RoomDTO roomDTO) {
+        log.info("Incoming request to update room: {}", roomDTO);
+        return roomService.updateOne(roomDTO);
     }
-
 }

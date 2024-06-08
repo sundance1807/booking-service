@@ -62,8 +62,8 @@ public class RoomService {
                 .toList();
     }
 
-    public RoomDTO updateOne(Long id, RoomDTO roomDTO) {
-        Room existingRoom = findById(id);
+    public RoomDTO updateOne(RoomDTO roomDTO) {
+        Room existingRoom = findById(roomDTO.getId());
         existingRoom.setName(roomDTO.getName());
         existingRoom.setFloor(roomDTO.getFloor());
         existingRoom.setCapacity(roomDTO.getCapacity());
