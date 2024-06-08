@@ -50,7 +50,7 @@ public class RoomService {
 
     private Room findById(Long id) {
         return roomRepository.findById(id).orElseThrow(() -> CustomException.builder()
-                .httpStatus(HttpStatus.BAD_REQUEST)
+                .httpStatus(HttpStatus.NOT_FOUND)
                 .message(MessageSource.ROOM_NAME_NOT_FOUND.getText(id.toString()))
                 .build());
     }
@@ -74,7 +74,7 @@ public class RoomService {
     public void checkRoomExistsById(Long roomId) {
         if (!roomRepository.existsById(roomId)) {
             throw CustomException.builder()
-                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .httpStatus(HttpStatus.NOT_FOUND)
                     .message(MessageSource.ROOM_NOT_FOUND.getText(roomId.toString()))
                     .build();
         }

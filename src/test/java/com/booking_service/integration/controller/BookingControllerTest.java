@@ -12,6 +12,7 @@ import com.booking_service.repository.RoomRepository;
 import com.booking_service.repository.UserRepository;
 import com.booking_service.security.UserDetailsImpl;
 import com.booking_service.util.MessageSource;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.instancio.Instancio;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,6 +32,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTestContainers
 class BookingControllerTest {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private static final String USERNAME = "user";
+
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Autowired
     private MockMvc mockMvc;
@@ -167,15 +172,12 @@ class BookingControllerTest {
     }
 
     @Test
+    @WithMockUser(username = USERNAME)
     void saveOne_throwException_whenUserNotFound() throws Exception {
         // given
         Room room = roomRepository.save(Instancio.create(Room.class));
         BookingDTO bookingDTO = Instancio.create(BookingDTO.class);
         bookingDTO.setRoomId(room.getId());
-
-        UserDetailsImpl userDetails = Instancio.create(UserDetailsImpl.class);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
 
         String requestBody = objectMapper.writeValueAsString(bookingDTO);
         // when
@@ -188,15 +190,18 @@ class BookingControllerTest {
         ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
 
-        assertEquals(MessageSource.USER_NOT_FOUND.getText(userDetails.getUsername()), errorResponseDTO.getMessage());
+        assertEquals(MessageSource.USER_NOT_FOUND.getText(USERNAME), errorResponseDTO.getMessage());
         assertEquals(HttpStatus.NOT_FOUND.value(), errorResponseDTO.getCode());
     }
 
     @Test
+    @WithMockUser(username = USERNAME)
     void saveOne_returnsBookingDTO() throws Exception {
         // given
         Room room = roomRepository.save(Instancio.create(Room.class));
-        User user = userRepository.save(Instancio.create(User.class));
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        userRepository.save(user);
 
         BookingDTO bookingDTO = new BookingDTO();
         bookingDTO.setRoomId(room.getId());
@@ -204,10 +209,6 @@ class BookingControllerTest {
         bookingDTO.setEndTime(LocalDateTime.of(2024, 2, 1, 12, 0));
         bookingDTO.setTitle("title");
         bookingDTO.setDescription("description");
-
-        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
 
         String requestBody = objectMapper.writeValueAsString(bookingDTO);
         // when
@@ -248,7 +249,7 @@ class BookingControllerTest {
     void deleteOne_throwException_whenUserNotAuthorized() throws Exception {
         // given
         User user = Instancio.create(User.class);
-        user.setUsername("user");
+        user.setUsername(USERNAME);
         user = userRepository.save(user);
         Booking booking = Instancio.create(Booking.class);
         booking.setUser(user);
@@ -275,16 +276,16 @@ class BookingControllerTest {
     }
 
     @Test
+    @WithMockUser(username = USERNAME)
     void deleteOne_deletesBooking() throws Exception {
         // given
-        User user = userRepository.save(Instancio.create(User.class));
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
+
         Booking booking = Instancio.create(Booking.class);
         booking.setUser(user);
         booking = bookingRepository.save(booking);
-
-        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
         // when
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -349,5 +350,73 @@ class BookingControllerTest {
         assertEquals(1, invalidFields.size());
         assertTrue(invalidFields.containsKey("roomId"));
         assertEquals("Поле 'roomId' должно быть больше 0", invalidFields.get("roomId"));
+    }
+
+    @Test
+    void getWeekBooking_throwException_whenRoomNotFound() throws Exception {
+        // given
+        WeekBookingDTO weekBookingDTO = new WeekBookingDTO();
+        weekBookingDTO.setRoomId(1L);
+        weekBookingDTO.setDate(LocalDate.of(2024, 2, 1));
+
+        String requestBody = objectMapper.writeValueAsString(weekBookingDTO);
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/bookings/week")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isNotFound()).andReturn();
+        // then
+        ErrorResponseDTO errorResponseDTO = objectMapper.readValue(mvcResult.getResponse()
+                .getContentAsString(StandardCharsets.UTF_8), ErrorResponseDTO.class);
+
+        assertEquals(MessageSource.ROOM_NOT_FOUND.getText(weekBookingDTO.getRoomId().toString()), errorResponseDTO.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.value(), errorResponseDTO.getCode());
+    }
+
+    @Test
+    @WithMockUser(username = USERNAME)
+    void getWeekBooking_returnsMapOfBookings() throws Exception {
+        // given
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
+
+        Room room = roomRepository.save(Instancio.create(Room.class));
+        Booking booking = Instancio.create(Booking.class);
+        booking.setRoom(room);
+        booking.setUser(user);
+        booking.setStartTime(LocalDateTime.of(2024, 2, 2, 10, 0));
+        booking.setEndTime(LocalDateTime.of(2024, 2, 2, 11, 0));
+        booking = bookingRepository.save(booking);
+
+        WeekBookingDTO weekBookingDTO = new WeekBookingDTO();
+        weekBookingDTO.setRoomId(room.getId());
+        LocalDate searchDate = LocalDate.of(2024, 2, 1);
+        weekBookingDTO.setDate(searchDate);
+
+        String requestBody = objectMapper.writeValueAsString(weekBookingDTO);
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/bookings/week")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+                        .characterEncoding("utf-8"))
+                .andExpect(status().isOk()).andReturn();
+        // then
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        Map<LocalDate, List<BookingDTO>> map = objectMapper.readValue(contentAsString, new TypeReference<>() {});
+        assertEquals(1, map.size());
+        List<BookingDTO> weekBookings = map.get(booking.getStartTime().toLocalDate());
+
+        assertEquals(1, weekBookings.size());
+        BookingDTO bookingDTO = weekBookings.get(0);
+
+        assertEquals(booking.getId(), bookingDTO.getId());
+        assertEquals(booking.getTitle(), bookingDTO.getTitle());
+        assertEquals(booking.getDescription(), bookingDTO.getDescription());
+        assertEquals(booking.getStartTime(), bookingDTO.getStartTime());
+        assertEquals(booking.getEndTime(), bookingDTO.getEndTime());
+        assertEquals(booking.getRoom().getId(), bookingDTO.getRoomId());
+        assertTrue(bookingDTO.getEditable());
     }
 }
