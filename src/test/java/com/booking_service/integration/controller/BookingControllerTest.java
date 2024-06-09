@@ -122,12 +122,16 @@ class BookingControllerTest {
     @Test
     void saveOne_throwException_whenExistingOverlappingBookings() throws Exception {
         // given
+        User user = userRepository.save(Instancio.create(User.class));
+        Room room = roomRepository.save(Instancio.create(Room.class));
+
         Booking booking = Instancio.create(Booking.class);
         LocalDateTime start = LocalDateTime.of(2024, 2, 1, 10, 0);
         LocalDateTime end = LocalDateTime.of(2024, 2, 1, 12, 0);
         booking.setStartTime(start);
         booking.setEndTime(end);
-
+        booking.setRoom(room);
+        booking.setUser(user);
         booking = bookingRepository.save(booking);
 
         BookingDTO bookingDTO = new BookingDTO();
@@ -231,6 +235,7 @@ class BookingControllerTest {
 
     @Test
     void deleteOne_throwException_whenBookingNotFound() throws Exception {
+        // given
         Long bookingId = 1L;
         // when
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", bookingId)
@@ -248,8 +253,14 @@ class BookingControllerTest {
     @Test
     void deleteOne_throwException_whenUserNotAuthorized() throws Exception {
         // given
+        Room room = roomRepository.save(Instancio.create(Room.class));
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
+
         Booking booking = Instancio.create(Booking.class);
-        booking.getUser().setUsername(USERNAME);
+        booking.setUser(user);
+        booking.setRoom(room);
         booking = bookingRepository.save(booking);
 
         User anotherUser = Instancio.create(User.class);
@@ -276,8 +287,14 @@ class BookingControllerTest {
     @WithMockUser(username = USERNAME)
     void deleteOne_deletesBooking() throws Exception {
         // given
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
+        Room room = roomRepository.save(Instancio.create(Room.class));
+
         Booking booking = Instancio.create(Booking.class);
-        booking.getUser().setUsername(USERNAME);
+        booking.setUser(user);
+        booking.setRoom(room);
         booking = bookingRepository.save(booking);
         // when
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/bookings/{id}", booking.getId())
@@ -371,10 +388,13 @@ class BookingControllerTest {
     @WithMockUser(username = USERNAME)
     void getWeekBooking_returnsMapOfBookings() throws Exception {
         // given
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
         Room room = roomRepository.save(Instancio.create(Room.class));
         Booking booking = Instancio.create(Booking.class);
         booking.setRoom(room);
-        booking.getUser().setUsername(USERNAME);
+        booking.setUser(user);
         booking.setStartTime(LocalDateTime.of(2024, 2, 2, 10, 0));
         booking.setEndTime(LocalDateTime.of(2024, 2, 2, 11, 0));
         booking = bookingRepository.save(booking);
@@ -486,12 +506,25 @@ class BookingControllerTest {
     }
 
     @Test
-    @WithMockUser(username = USERNAME)
     void updateOne_throwException_whenUserNotAuthorized() throws Exception {
         // given
+        User user = Instancio.create(User.class);
+        user.setUsername(USERNAME);
+        user = userRepository.save(user);
+        Room room = roomRepository.save(Instancio.create(Room.class));
+
         Booking booking = Instancio.create(Booking.class);
-        booking.getUser().setUsername("another_user");
+        booking.setUser(user);
+        booking.setRoom(room);
         booking = bookingRepository.save(booking);
+
+        User anotherUser = Instancio.create(User.class);
+        anotherUser.setUsername("another_user");
+        anotherUser = userRepository.save(anotherUser);
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(anotherUser);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         BookingDTO bookingDTO = new BookingDTO();
         bookingDTO.setId(booking.getId());
@@ -527,7 +560,6 @@ class BookingControllerTest {
         user.setUsername(USERNAME);
         user = userRepository.save(user);
 
-
         Booking booking = Instancio.create(Booking.class);
         booking.setStartTime(start);
         booking.setEndTime(end);
@@ -537,6 +569,7 @@ class BookingControllerTest {
 
         Booking updateBooking = Instancio.create(Booking.class);
         updateBooking.setUser(user);
+        updateBooking.setRoom(room);
         updateBooking = bookingRepository.save(updateBooking);
 
         BookingDTO bookingDTO = new BookingDTO();
