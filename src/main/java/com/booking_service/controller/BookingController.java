@@ -7,7 +7,7 @@ import com.booking_service.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("api/v1/bookings")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BookingController {
 
     private final BookingService bookingService;
@@ -29,9 +29,9 @@ public class BookingController {
      * @return map of bookings sorted by date from monday to sunday
      * @throws CustomException if room not found
      */
-    @Operation(summary = "Получить все брони за текущую неделю.")
-    @ApiResponse(responseCode = "200", description = "Метод для получения всех броней за текущую неделю.")
-    @GetMapping
+    @Operation(summary = "Получить все брони за неделю.")
+    @ApiResponse(responseCode = "200", description = "Метод для получения всех броней за неделю.")
+    @PostMapping("/week")
     @ResponseStatus(HttpStatus.OK)
     public Map<LocalDate, List<BookingDTO>> getWeekBooking(@RequestBody @Valid WeekBookingDTO dto) {
         log.info("Incoming request to get all booking by weekday.");
